@@ -2,7 +2,7 @@
 
 This temporary repository hosts the code for the submission "ProtoMF: Prototype-based Matrix Factorization for ExplainableRecommendations" at WebConf 2022, Special Track "Web4Good".
 
-
+![](https://github.com/karapostK/ProtoMF-temp/blob/04061e11b809a702a63ef898370027e40519573e/protomf_diagram.png "sutff")
 
 Code is structured in the following way and briefly described below:
 
