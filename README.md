@@ -1,6 +1,6 @@
 # ProtoMF: Prototype-based Matrix Factorization for ExplainableRecommendations (temporary anonymized repository)
 
-This temporary repository hosts the code for the submission "ProtoMF: Prototype-based Matrix Factorization for ExplainableRecommendations" at WebConf 2022, Special Track "Web4Good".
+This temporary repository hosts the code for the submission "ProtoMF: Prototype-based Matrix Factorization for ExplainableRecommendations" at SIGIR 2022.
 
 ![](https://github.com/karapostK/ProtoMF-temp/blob/04061e11b809a702a63ef898370027e40519573e/protomf_diagram.png "sutff")
 
@@ -43,4 +43,4 @@ where the files/directories contain:
 - `rec_sys/protorec_dataset.py`: general code for handling the dataset (including negative sampling)
 - `rec_sys/rec_sys.py`: a matrix-factorization-based recommender system, used as base for all models
 - `rec_sys/tester.py` and `rec_sys/trainer.py`: testing and training procedure respectively
-- `utilities/*`: constants, evaluation metrics code, generic cod
+- `utilities/*`: constants, evaluation metrics code, generic code
