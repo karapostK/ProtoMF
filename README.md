@@ -5,7 +5,7 @@ This temporary repository hosts the code and additional materials for the submis
 
 **Evaluation results using other thresholds k (@5,@50)** are located at ```imgs/evaluation_results_using_other_thresholds_k.png```.
 
-**A T-SNE visualization of the items and the prototypes on LFM2b-1mon** is located at ```imgs/prototypes_from_lfm2b-1m.png```
+**A T-SNE visualization of the items and the prototypes on LFM2b-1mon** is located at ```imgs/Item_proto_1_latent_space.pdf```
 
 **Prototypes from LFM2b-1mon** are shown in ```imgs/prototypes_from_lfm2b-1m.png``` and briefly described below.
 
