@@ -1,9 +1,11 @@
-# ProtoMF: Prototype-based Matrix Factorization for Explainable Recommendations (temporary anonymized repository)
+# ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations (temporary anonymized repository)
 
-This temporary repository hosts the code and additional materials for the submission "ProtoMF: Prototype-based Matrix Factorization for ExplainableRecommendations" at RecSys 2022.
+This temporary repository hosts the code and additional materials for the submission "ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations" at RecSys 2022.
 
 
 **Evaluation results using other thresholds k (@5,@50)** are located at ```imgs/evaluation_results_using_other_thresholds_k.png```.
+
+**Hyperparameter list, value ranges, and distributions of the models reported in the paper** is located at ```ìmgs/hyperparameter_table.png```
 
 **A T-SNE visualization of the items and the prototypes on LFM2b-1mon** is located at ```imgs/Item_proto_1_latent_space.pdf```
 
