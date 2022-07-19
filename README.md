@@ -1,17 +1,6 @@
 # ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations
 
-This repository hosts the code and additional materials for the submission "ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations" at RecSys 2022.
-
-
-**Evaluation results using other thresholds k (@5,@50)** are located at ```imgs/evaluation_results_using_other_thresholds_k.png```.
-
-**Hyperparameter list, value ranges, and distributions of the models reported in the paper** is located at ```ìmgs/hyperparameter_table.png```
-
-**A T-SNE visualization of the items and the prototypes on LFM2b-1mon** is located at ```imgs/Item_proto_1_latent_space.pdf```
-
-**Prototypes from LFM2b-1mon** are shown in ```imgs/prototypes_from_lfm2b-1m.png``` and briefly described below.
-
-The three user prototypes present different music preferences. Prototype 16's top tracks are from Rock/Hard Rock bands, while prototype 35's recommendations belong all to female pop-singers. Prototype 30, instead, prefers Electronic and Downtempo music. Similarly, the three item prototypes capture different music genres. In fact, prototype 6's top neighbors are Lo-fi tracks, while prototype 16's are mostly Hip Hop and Rap. Lastly, prototype 13 represents a prototypical Heavy-Metal track.
+This repository hosts the code and the additional materials for the submission "ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations" at RecSys 2022.
 
 **Code** is structured in the following way and briefly described below:
 
