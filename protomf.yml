@@ -1,4 +1,4 @@
-name: protorec
+name: protomf
 channels:
   - pytorch
   - defaults
