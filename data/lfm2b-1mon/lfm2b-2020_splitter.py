@@ -10,7 +10,7 @@ INF_STR = "{:10d} entries {:7d} users {:7d} items for {}"
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--listening_history_path', '-lh', type=str,
-                    help="Path to 'users.tsv' and 'listening_events.tsv' of the LFM2b-1y dataset.")
+                    help="Path to 'users.tsv' and 'listening_events.tsv' of the LFM2b-2020 dataset.")
 parser.add_argument('--saving_path', '-s', type=str, help="Path where to save the split data. Default to './'",
                     default='./')
 
@@ -24,7 +24,8 @@ user_info_path = os.path.join(listening_history_path, 'users.tsv')
 item_info_path = os.path.join(listening_history_path, 'tracks.tsv')
 listening_events_path = os.path.join(listening_history_path, 'listening_events.tsv')
 
-lhs = pd.read_csv(listening_events_path, sep='\t', names=['old_user_id', 'old_item_id', 'timestamp'], skiprows=1)
+lhs = pd.read_csv(listening_events_path, sep='\t', names=['old_user_id', 'old_item_id', 'timestamp'], skiprows=1,
+                  usecols=[0, 1, 3])
 print(INF_STR.format(len(lhs), lhs.old_user_id.nunique(), lhs.old_item_id.nunique(), 'Original Data'))
 
 # We keep only the data from the last month
@@ -32,7 +33,7 @@ lhs = lhs[lhs.timestamp >= '2020-02-20 00:00:00']
 print(INF_STR.format(len(lhs), lhs.old_user_id.nunique(), lhs.old_item_id.nunique(), 'Only last month'))
 
 # Loading users and items
-users = pd.read_csv(user_info_path, delimiter='\t', names=['old_user_id', 'gender', 'country', 'age', 'creation_time'],
+users = pd.read_csv(user_info_path, delimiter='\t', names=['old_user_id', 'country', 'age', 'gender', 'creation_time'],
                     skiprows=1)
 
 # Only users with gender in m/f and 10 <= age <= 95

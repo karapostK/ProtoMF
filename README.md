@@ -1,6 +1,6 @@
 # ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations
 
-This repository hosts the code and the additional materials for the submission "ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations" at RecSys 2022.
+This repository hosts the code and the additional materials for the paper "ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations" by Alessandro B. Melchiorre, Navid Rekabsaz, Christian Ganhör, and Markus Schedl at RecSys 2022.
 
 **Code** is structured in the following way and briefly described below:
 
@@ -10,15 +10,20 @@ This repository hosts the code and the additional materials for the submission "
 ├── data
 │   ├── amazon2014
 │   │   └── amazon2014_splitter.py
-│   ├── lfm2b-1y
-│   │   └── lfm2b-1y_splitter.py
+│   ├── lfm2b-1mon
+│   │   └── lfm2b-2020_splitter.py
 │   └── ml-1m
 │       └── movielens_splitter.py
 ├── experiment_helper.py
 ├── feature_extraction
 │   ├── feature_extractor_factories.py
 │   └── feature_extractors.py
-├── protorec.yml
+├── pdfs and images
+│   ├── protomf_appendix.pdf
+│   ├── protomf_diagram.png
+│   └── ProtoMF__Prototype_based_Matrix_Factorization.pdf
+├── protomf.yml
+├── README.md
 ├── rec_sys
 │   ├── protorec_dataset.py
 │   ├── rec_sys.py

@@ -89,7 +89,7 @@ def start_hyper(conf: dict, model: str, dataset: str, seed: int = SINGLE_SEED):
     # Search Algorithm
     search_alg = HyperOptSearch(random_state_seed=seed)
 
-    if dataset == 'lfm2b-1y':
+    if dataset == 'lfm2b-1mon':
         scheduler = ASHAScheduler(grace_period=4)
     else:
         scheduler = None
