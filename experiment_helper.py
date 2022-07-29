@@ -12,7 +12,7 @@ from rec_sys.protorec_dataset import get_protorecdataset_dataloader
 from rec_sys.tester import Tester
 from rec_sys.trainer import Trainer
 from utilities.consts import NEG_VAL, OPTIMIZING_METRIC, SEED_LIST, SINGLE_SEED, NUM_SAMPLES, WANDB_API_KEY, \
-    PROJECT_NAME
+    PROJECT_NAME, DATA_PATH, NUM_WORKERS, CPU_PER_TRIAL, GPU_PER_TRIAL
 from utilities.utils import reproducible, generate_id
 
 
@@ -25,7 +25,7 @@ def load_data(conf: argparse.Namespace, is_train: bool = True):
             neg_strategy=conf.train_neg_strategy,
             batch_size=conf.batch_size,
             shuffle=True,
-            num_workers=2,
+            num_workers=NUM_WORKERS,
             prefetch_factor=5
         )
 
@@ -35,7 +35,7 @@ def load_data(conf: argparse.Namespace, is_train: bool = True):
             n_neg=NEG_VAL,
             neg_strategy=conf.eval_neg_strategy,
             batch_size=conf.val_batch_size,
-            num_workers=2
+            num_workers=NUM_WORKERS
         )
 
         return {'train_loader': train_loader, 'val_loader': val_loader}
@@ -47,7 +47,7 @@ def load_data(conf: argparse.Namespace, is_train: bool = True):
             n_neg=NEG_VAL,
             neg_strategy=conf.eval_neg_strategy,
             batch_size=conf.val_batch_size,
-            num_workers=2
+            num_workers=NUM_WORKERS
         )
 
         return {'test_loader': test_loader}
@@ -102,7 +102,7 @@ def start_hyper(conf: dict, model: str, dataset: str, seed: int = SINGLE_SEED):
     host_name = os.uname()[1][:2]
 
     # Dataset
-    data_path = './'
+    data_path = DATA_PATH
     conf['data_path'] = os.path.join(data_path, dataset)
 
     # Seed
@@ -114,7 +114,7 @@ def start_hyper(conf: dict, model: str, dataset: str, seed: int = SINGLE_SEED):
         group_name,
         config=conf,
         name=generate_id(prefix=group_name),
-        resources_per_trial={'gpu': 0.2, 'cpu': 1},
+        resources_per_trial={'gpu': GPU_PER_TRIAL, 'cpu': CPU_PER_TRIAL},
         scheduler=scheduler,
         search_alg=search_alg,
         num_samples=NUM_SAMPLES,
