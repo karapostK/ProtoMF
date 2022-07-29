@@ -11,8 +11,8 @@ class RecSys(nn.Module):
     def __init__(self, n_users: int, n_items: int, rec_sys_param, user_feature_extractor: FeatureExtractor,
                  item_feature_extractor: FeatureExtractor, loss_func_name: str, loss_func_aggr: str = 'mean'):
         """
-        Matrix Factorization-based Recommender System.
-        It generates the user/item vectors and computes the similarity by the dot product.
+        General Recommender System
+        It generates the user/item vectors (given the feature extractors) and computes the similarity by the dot product.
         :param n_users: number of users in the system
         :param n_items: number of items in the system
         :param rec_sys_param: parameters of the Recommender System module

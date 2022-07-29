@@ -134,12 +134,6 @@ class Trainer:
             else:
                 patience += 1
 
-            # there is no point in waiting
-            #if epoch >= 20 and curr_value <= 0.3:
-            #    break
-            #if epoch >= 50 and curr_value <= 0.5:
-                #break
-
     @torch.no_grad()
     def val(self):
         """

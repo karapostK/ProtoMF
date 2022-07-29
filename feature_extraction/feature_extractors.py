@@ -41,7 +41,7 @@ class FeatureExtractor(nn.Module, ABC):
 
 class Embedding(FeatureExtractor):
     """
-    FeatureExtractor that represents an object only given by its embedding.
+    FeatureExtractor that represents an object (item/user) only given by its embedding.
     """
 
     def __init__(self, n_objects: int, embedding_dim: int, max_norm: float = None, only_positive: bool = False):
@@ -115,12 +115,14 @@ class EmbeddingW(Embedding):
 
 
 class AnchorBasedCollaborativeFiltering(FeatureExtractor):
+    """
+    Anchor-based Collaborative Filtering by Barkan et al. (https://dl.acm.org/doi/10.1145/3459637.3482056) published at CIKM 2021.
+    """
 
     def __init__(self, n_objects: int, embedding_dim: int, anchors: nn.Parameter, delta_exc: float = 0,
                  delta_inc: float = 0, max_norm: float = None):
         super().__init__()
         """
-        Anchor-based Collaborative Filtering. Published on CIKM 2021.
         NB. delta_inc and delta_exc should be passed only when instantiating this FeatureExtractor for Items.
 
         :param n_objects: number of objects in the system (users or items)
@@ -186,122 +188,16 @@ class AnchorBasedCollaborativeFiltering(FeatureExtractor):
         return - self.delta_inc * acc_inc + self.delta_exc * acc_exc
 
 
-class PrototypeEmbeddingDistance(FeatureExtractor):
-
-    def __init__(self, n_objects: int, embedding_dim: int, n_prototypes: int = None, use_weight_matrix: bool = False,
-                 dist_proto_weight: float = 1., dist_batch_weight: float = 1., distance_func_name='euclidean',
-                 max_norm: float = None):
-        """
-        FeatureExtractor that represents an object given the distance with prototypes.
-        Follows: https://arxiv.org/abs/1710.04806
-
-        :param n_objects: number of objects in the system (users or items)
-        :param embedding_dim: embedding dimension
-        :param n_prototypes: number of prototypes to consider. If none, is set to be embedding_dim.
-        :param use_weight_matrix: Whether to use a linear layer after the prototype layer.
-        :param dist_proto_weight: factor multiplied to the distance loss for prototypes
-        :param dist_batch_weight: factor multiplied to the distance loss for batch
-        :param distance_func_name: name of the distance function (cosine or euclidean for now)
-        :param max_norm: max norm of the l2 norm of the embeddings.
-
-        """
-
-        super(PrototypeEmbeddingDistance, self).__init__()
-
-        self.n_objects = n_objects
-        self.embedding_dim = embedding_dim
-        self.n_prototypes = n_prototypes
-        self.use_weight_matrix = use_weight_matrix
-        self.dist_proto_weight = dist_proto_weight
-        self.dist_batch_weight = dist_batch_weight
-        self.distance_func_name = distance_func_name
-
-        self.embedding_ext = Embedding(n_objects, embedding_dim, max_norm)
-
-        if self.n_prototypes is None:
-            self.prototypes = nn.Parameter(torch.randn([self.embedding_dim, self.embedding_dim]))
-            self.n_prototypes = self.embedding_dim
-        else:
-            self.prototypes = nn.Parameter(torch.randn([self.n_prototypes, self.embedding_dim]))
-
-        if self.use_weight_matrix:
-            self.weight_matrix = nn.Linear(self.n_prototypes, self.embedding_dim, bias=False)
-
-        self._acc_r_proto = 0
-        self._acc_r_batch = 0
-        self.name = "PrototypeEmbeddingDistance"
-
-        print(f'Built PrototypeEmbeddingDistance model \n'
-              f'- n_prototypes: {self.n_prototypes} \n'
-              f'- use_weight_matrix: {self.use_weight_matrix} \n'
-              f'- dist_proto_weight: {self.dist_proto_weight} \n'
-              f'- dist_batch_weight: {self.dist_batch_weight} \n'
-              f'- distance_func_name: {self.distance_func_name}')
-
-    def init_parameters(self):
-        if self.use_weight_matrix:
-            nn.init.xavier_normal_(self.weight_matrix.weight)
-
-    def forward(self, o_idxs: torch.Tensor) -> torch.Tensor:
-        """
-        :param o_idxs: Shape is either [batch_size] or [batch_size,n_neg_p_1]
-        :return:
-        """
-        assert o_idxs is not None, "Object indexes not provided"
-        assert len(o_idxs.shape) == 2 or len(o_idxs.shape) == 1, \
-            f'Object indexes have shape that does not match the network ({o_idxs.shape})'
-
-        o_embed = self.embedding_ext(o_idxs)  # [..., embedding_dim]
-
-        dis_mtx = self.compute_distances(o_embed)  # [..., n_prototypes]
-
-        if self.use_weight_matrix:
-            w = self.weight_matrix(dis_mtx)  # [...,embedding_dim]
-        else:
-            w = dis_mtx  # [...,embedding_dim = n_prototypes]
-
-        # Computing additional losses
-        batch_proto = dis_mtx.reshape([-1, dis_mtx.shape[-1]])
-        r_batch = batch_proto.min(dim=1).values.mean()
-        r_proto = batch_proto.min(dim=0).values.mean()
-
-        self._acc_r_batch += r_batch
-        self._acc_r_proto += r_proto
-
-        return w
-
-    def compute_distances(self, embeddings: torch.Tensor) -> torch.Tensor:
-        """
-        Computes the distances embeddings <-> prototypes.
-        :param embeddings: embeddings to be compared to the prototypes. Shape is [batch_size,n_neg_p_1,embedding_dim]
-        or [batch_size,embedding_dim]
-        :return: similarity matrix. Shape is [batch_size,n_neg_p_1,n_prototypes] or [batch_size,n_prototypes]
-        """
-        if self.distance_func_name == 'cosine':
-            # https://github.com/pytorch/pytorch/issues/48306
-            cosine_sim = nn.CosineSimilarity(dim=-1)
-            dis_mtx = 1 - cosine_sim(embeddings.unsqueeze(-2), self.prototypes)
-        elif self.distance_func_name == 'euclidean':
-            dis_mtx = torch.cdist(embeddings, self.prototypes, p=2).square()
-        else:
-            raise ValueError('Distance Function not implemented... yet')
-        return dis_mtx
-
-    def get_and_reset_loss(self) -> float:
-        acc_r_proto, acc_r_batch = self._acc_r_proto, self._acc_r_batch
-        self._acc_r_proto = self._acc_r_batch = 0
-        return self.dist_proto_weight * acc_r_proto + self.dist_batch_weight * acc_r_batch
-
-
 class PrototypeEmbedding(FeatureExtractor):
+    """
+    ProtoMF building block. It represents an object (item/user) given the similarity with the prototypes.
+    """
 
     def __init__(self, n_objects: int, embedding_dim: int, n_prototypes: int = None, use_weight_matrix: bool = False,
                  sim_proto_weight: float = 1., sim_batch_weight: float = 1.,
                  reg_proto_type: str = 'soft', reg_batch_type: str = 'soft', cosine_type: str = 'shifted',
                  max_norm: float = None):
         """
-        FeatureExtractor that represents an object given the similarity with prototypes.
-
         :param n_objects: number of objects in the system (users or items)
         :param embedding_dim: embedding dimension
         :param n_prototypes: number of prototypes to consider. If none, is set to be embedding_dim.

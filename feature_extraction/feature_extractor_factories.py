@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from feature_extraction.feature_extractors import FeatureExtractor, Embedding, AnchorBasedCollaborativeFiltering, \
-    PrototypeEmbedding, ConcatenateFeatureExtractors, EmbeddingW, PrototypeEmbeddingDistance
+    PrototypeEmbedding, ConcatenateFeatureExtractors, EmbeddingW
 
 
 class FeatureExtractorFactory:
@@ -27,7 +27,7 @@ class FeatureExtractorFactory:
         embedding_dim = ft_ext_param['embedding_dim']
 
         if ft_type == 'detached':
-            # Build the extractors independently.
+            # Build the extractors independently (e.g. two embeddings branches, one for users and one for items)
             user_feature_extractor = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'], n_users,
                                                                           embedding_dim)
             item_feature_extractor = FeatureExtractorFactory.create_model(ft_ext_param['item_ft_ext_param'], n_items,
@@ -35,9 +35,10 @@ class FeatureExtractorFactory:
             return user_feature_extractor, item_feature_extractor
 
         elif ft_type == 'prototypes':
-
+            # The feature extractors are related, e.g. one of them contains a prototype layer and the other an embedding
             if 'prototypes' in ft_ext_param['user_ft_ext_param']['ft_type'] and \
                     ft_ext_param['item_ft_ext_param']['ft_type'] == 'embedding':
+                # User Proto
 
                 user_n_prototypes = ft_ext_param['user_ft_ext_param']['n_prototypes']
 
@@ -50,7 +51,7 @@ class FeatureExtractorFactory:
 
             elif 'prototypes' in ft_ext_param['item_ft_ext_param']['ft_type'] and \
                     ft_ext_param['user_ft_ext_param']['ft_type'] == 'embedding':
-
+                # Item Proto
                 item_n_prototypes = ft_ext_param['item_ft_ext_param']['n_prototypes']
 
                 user_feature_extractor = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'],
@@ -65,32 +66,8 @@ class FeatureExtractorFactory:
 
             return user_feature_extractor, item_feature_extractor
 
-        elif ft_type == 'prototypes_double':
-
-            item_n_prototypes = ft_ext_param['item_ft_ext_param']['n_prototypes']
-            user_n_prototypes = ft_ext_param['user_ft_ext_param']['n_prototypes']
-            user_use_weight_matrix = ft_ext_param['user_ft_ext_param']['use_weight_matrix']
-            item_use_weight_matrix = ft_ext_param['item_ft_ext_param']['use_weight_matrix']
-
-            ft_ext_param['user_ft_ext_param']['ft_type'] = 'prototypes'
-            user_proto = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'], n_users, embedding_dim)
-            ft_ext_param['user_ft_ext_param']['ft_type'] = 'embedding'
-            user_embed = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'], n_users,
-                                                              embedding_dim if item_use_weight_matrix else item_n_prototypes)
-
-            ft_ext_param['item_ft_ext_param']['ft_type'] = 'prototypes'
-            item_proto = FeatureExtractorFactory.create_model(ft_ext_param['item_ft_ext_param'], n_items, embedding_dim)
-            ft_ext_param['item_ft_ext_param']['ft_type'] = 'embedding'
-            item_embed = FeatureExtractorFactory.create_model(ft_ext_param['item_ft_ext_param'], n_items,
-                                                              embedding_dim if user_use_weight_matrix else user_n_prototypes)
-
-            user_feature_extractor = ConcatenateFeatureExtractors(user_proto, user_embed, invert=False)
-            item_feature_extractor = ConcatenateFeatureExtractors(item_proto, item_embed, invert=True)
-
-            return user_feature_extractor, item_feature_extractor
-
         elif ft_type == 'prototypes_double_tie':
-
+            # User-Item Proto
             item_n_prototypes = ft_ext_param['item_ft_ext_param']['n_prototypes']
             user_n_prototypes = ft_ext_param['user_ft_ext_param']['n_prototypes']
             user_use_weight_matrix = ft_ext_param['user_ft_ext_param']['use_weight_matrix']
@@ -98,12 +75,14 @@ class FeatureExtractorFactory:
 
             assert not user_use_weight_matrix and not item_use_weight_matrix, 'Use Weight Matrix should be turned off to tie the weights!'
 
+            # Building User Proto branch
             ft_ext_param['user_ft_ext_param']['ft_type'] = 'prototypes'
             user_proto = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'], n_users, embedding_dim)
             ft_ext_param['user_ft_ext_param']['ft_type'] = 'embedding_w'
             ft_ext_param['user_ft_ext_param']['out_dimension'] = item_n_prototypes
             user_embed = FeatureExtractorFactory.create_model(ft_ext_param['user_ft_ext_param'], n_users, embedding_dim)
 
+            # Building Item Proto branch
             ft_ext_param['item_ft_ext_param']['ft_type'] = 'prototypes'
             item_proto = FeatureExtractorFactory.create_model(ft_ext_param['item_ft_ext_param'], n_items, embedding_dim)
             ft_ext_param['item_ft_ext_param']['ft_type'] = 'embedding_w'
@@ -120,6 +99,8 @@ class FeatureExtractorFactory:
             return user_feature_extractor, item_feature_extractor
 
         elif ft_type == 'acf':
+            # Anchor-based collaborative filtering
+
             n_anchors = ft_ext_param['n_anchors']
             delta_exc = ft_ext_param['delta_exc']
             delta_inc = ft_ext_param['delta_inc']
@@ -140,7 +121,8 @@ class FeatureExtractorFactory:
         """
         Creates the specified FeatureExtractor model by reading the ft_ext_param. Currently available:
         - Embedding: represents objects by learning an embedding, A.K.A. Collaborative Filtering.
-        - PrototypeEmbedding: represents an object by the distant from prototypes.
+        - EmbeddingW: As Embedding but followed by a linear layer.
+        - PrototypeEmbedding: represents an object by the similarity to the prototypes.
 
         :param ft_ext_param: parameters specific for the model type. ft_ext_param.ft_type is used for switching between
                 models.
@@ -160,17 +142,6 @@ class FeatureExtractorFactory:
             out_dimension = ft_ext_param['out_dimension'] if 'out_dimension' in ft_ext_param else None
             use_bias = ft_ext_param['use_bias'] if 'use_bias' in ft_ext_param else False
             model = EmbeddingW(n_objects, embedding_dim, max_norm, out_dimension, use_bias)
-        elif ft_type == 'prototypes_distance':
-            n_prototypes = ft_ext_param['n_prototypes'] if 'n_prototypes' in ft_ext_param else None
-            max_norm = ft_ext_param['max_norm'] if 'max_norm' in ft_ext_param else None
-            dist_proto_weight = ft_ext_param['dist_proto_weight'] if 'dist_proto_weight' in ft_ext_param else 1.
-            dist_batch_weight = ft_ext_param['dist_batch_weight'] if 'dist_batch_weight' in ft_ext_param else 1.
-            distance_func_name = ft_ext_param[
-                'distance_func_name'] if 'distance_func_name' in ft_ext_param else 'euclidean'
-            use_weight_matrix = ft_ext_param['use_weight_matrix'] if 'use_weight_matrix' in ft_ext_param else False
-            model = PrototypeEmbeddingDistance(n_objects, embedding_dim, n_prototypes, use_weight_matrix,
-                                               dist_proto_weight,
-                                               dist_batch_weight, distance_func_name, max_norm)
         elif ft_type == 'prototypes':
             n_prototypes = ft_ext_param['n_prototypes'] if 'n_prototypes' in ft_ext_param else None
             max_norm = ft_ext_param['max_norm'] if 'max_norm' in ft_ext_param else None

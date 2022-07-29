@@ -159,7 +159,7 @@ class ProtoRecDataset(data.Dataset):
                         by the negative items indexes. Shape is (1 + n_neg,)
             labels: npy array containing the labels. First position is 1, the others are 0. Shape is (1 + n_neg,).
 
-        """ # todo: maybe drop the labels.
+        """
 
         user_idx = self.coo_matrix.row[index].astype('int64')
         item_idx_pos = self.coo_matrix.col[index]
