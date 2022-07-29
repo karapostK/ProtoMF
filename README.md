@@ -6,6 +6,20 @@ Rekabsaz, Christian Ganhör, and Markus Schedl at RecSys 2022.
 
 ![ProtoMF Diagram](./pdfs_and_images/3-protomf_models_schema.png "ProtoMF Diagram")
 
+```latex
+@inproceedings{melchiorre2022protomf,
+    title = {ProtoMF: Prototype-based Matrix Factorization for Effective and Explainable Recommendations},
+    author = {Melchiorre, Alessandro B. and Rekabsaz, Navid and Ganhör, Christian and Schedl, Markus},
+    booktitle = {Sixteenth ACM Conference on Recommender Systems},
+    year = {2022},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    series = {RecSys '22},
+    doi = {10.1145/3523227.3546756},
+    isbn = {978-1-4503-9278-5/22/09}
+}
+```
+
 ## Repository Structure
 
 The code is written in Python and relies on [Pytorch](https://pytorch.org/) to compute the model's gradients. We further
@@ -106,3 +120,9 @@ If the flag `-mp` is provided together with the model and dataset, then the scri
 optimization procedures and average the test results.
 
 Results and progress can be checked on the Weight&Biases webpage.
+
+## License 
+The code in this repository is licensed under the Apache 2.0 License. For details, please see the LICENSE file.
+## Acknowledgments
+
+This work received financial support by the Austrian Science Fund (FWF): P33526 and DFH-23; and by the State of Upper Austria and the Federal Ministry of Education, Science, and Research, through grant LIT-2020-9-SEE-113 and LIT-2021-YOU-215.
