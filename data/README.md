@@ -11,7 +11,7 @@ Download the file 'ratings_Video_Games.csv' from
 
 and place it in the amazon2014 folder before running amazon2014_splitter.py
 ## LFM-2b 1Mon
-Download the files 'users.tsv' and 'listening_events.tsv'
+Download the files 'users.tsv' and 'listening_events.tsv' from the 2020 Subset tab at
 > http://www.cp.jku.at/datasets/LFM-2b/
 
 and place them in the lfm2b-1mon folder before running lfm2b-2020_splitter.py
