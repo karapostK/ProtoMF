@@ -8,7 +8,7 @@ from ray.tune.integration.wandb import WandbLoggerCallback
 from ray.tune.schedulers import ASHAScheduler
 from ray.tune.suggest.hyperopt import HyperOptSearch
 
-from rec_sys.protorec_dataset import get_protorecdataset_dataloader
+from rec_sys.protomf_dataset import get_protorecdataset_dataloader
 from rec_sys.tester import Tester
 from rec_sys.trainer import Trainer
 from utilities.consts import NEG_VAL, OPTIMIZING_METRIC, SEED_LIST, SINGLE_SEED, NUM_SAMPLES, WANDB_API_KEY, \
