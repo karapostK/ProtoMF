@@ -38,7 +38,10 @@ def get_top_k_items(item_weights: np.ndarray, items_info: pd.DataFrame, proto_id
                     top_k: int = 10, invert: bool = False):
     """
     Used to generate the recommendations to a user prototype or find the closest items to an item prototypes (depending
-    on what item_weights encodes).
+    on what item_weights encodes). In the ProtoMF paper, we use the **item-to-item-prototype similarity matrix** as
+    item_weights when interpreting the item prototypes. We use the **list of all item embeddings** as item_weights when
+    interpreting the user prototypes (this corresponds in finding the recommendations for a user which is maximally
+    close to a specific user prototype a maximally distant from all the others).
     :param item_weights: Vector having, for each item, a value for each prototype. Shape is (n_items, n_prototypes)
     :param items_info: a dataframe which contains the item_id field used to look up the item information
     :param proto_idx: index of the prototype
