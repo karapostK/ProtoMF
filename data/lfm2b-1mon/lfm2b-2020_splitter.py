@@ -57,19 +57,19 @@ lhs = lhs[lhs.old_user_id.isin(user_below)]
 print(INF_STR.format(len(lhs), lhs.old_user_id.nunique(), lhs.old_item_id.nunique(),
                      'Removed power users (below the 99% percentile)'))
 
-# 5-core filtering
+# 10-core filtering
 while True:
     start_number = len(lhs)
 
     # Item pass
     item_counts = lhs.old_item_id.value_counts()
-    item_above = set(item_counts[item_counts >= 5].index)
+    item_above = set(item_counts[item_counts >= 10].index)
     lhs = lhs[lhs.old_item_id.isin(item_above)]
     print('Records after item pass: ', len(lhs))
 
     # User pass
     user_counts = lhs.old_user_id.value_counts()
-    user_above = set(user_counts[user_counts >= 5].index)
+    user_above = set(user_counts[user_counts >= 10].index)
     lhs = lhs[lhs.old_user_id.isin(user_above)]
     print('Records after user pass: ', len(lhs))
 
